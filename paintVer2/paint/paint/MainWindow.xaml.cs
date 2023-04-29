@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Contract;
 
 namespace paint
 {
@@ -20,7 +21,11 @@ namespace paint
     /// </summary>
     public partial class MainWindow : Fluent.RibbonWindow
     {
-        
+        //shape 
+        ShapeFactory _shapeFactoryIns = ShapeFactory.Instance;
+        List<IShape> _loadedShapePrototypes = new List<IShape>();
+        private string _selectedShapePrototypeName = "";
+
         public MainWindow()
         {
             InitializeComponent();
@@ -159,6 +164,24 @@ namespace paint
         private void btnBasicBrown_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            loadShapedll();
+            DataContext = this;
+         /*   _resetToDefault();*/
+        }
+        private void loadShapedll()
+        {
+            _loadedShapePrototypes = _shapeFactoryIns.GetPrototypes().Values.ToList();
+            iconListView.ItemsSource = _loadedShapePrototypes;
+
+            if (_loadedShapePrototypes.Count == 0)
+            {
+                return;
+            }
+
+            iconListView.SelectedIndex = 0;
         }
     }
 }

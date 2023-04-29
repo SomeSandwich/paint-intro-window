@@ -6,8 +6,4 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Contract\Contract.csproj" />
-  </ItemGroup>
-
 </Project>
