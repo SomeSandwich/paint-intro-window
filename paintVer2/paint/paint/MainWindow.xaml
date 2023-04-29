@@ -106,6 +106,31 @@
                     </Fluent:UniformGridWithItemSize>
                 </Fluent:RibbonGroupBox>
 
+                <Fluent:RibbonGroupBox Header="Tool" CanAddToQuickAccessToolBar="False">
+                    <StackPanel Orientation="Horizontal" Margin="0,4,0,-68" Width="63">
+                       
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Fluent:ToggleButton Name="fillColorButton" Header="Fill color" Size="Small" ToolTip="Fill color" Click="onChange_ToggleButton">
+                                <Fluent:ToggleButton.Icon>
+                                    <Image Source="Images/fill.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Fluent:ToggleButton.Icon>
+                            </Fluent:ToggleButton>
+                            <Fluent:ToggleButton Name="textModeButton" Header="Text" Size="Small" ToolTip="Text" Click="onChange_ToggleButton">
+                                <Fluent:ToggleButton.Icon>
+                                    <Image Source="Images/text.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Fluent:ToggleButton.Icon>
+                            </Fluent:ToggleButton>
+
+                            <Fluent:Button Header="Delete" Size="Small" ToolTip="Delete" Click="onDelete">
+                                <Fluent:Button.Icon>
+                                    <Image Source="Images/delete.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Fluent:Button.Icon>
+                            </Fluent:Button>
+                        </StackPanel>
+                    </StackPanel>
+
+                </Fluent:RibbonGroupBox>
+
                 <Fluent:RibbonGroupBox Header="Shapes">
                     <!--Add shapes' icon here-->
                     <ListView Name="iconListView" Width="200" Height="60" Margin="8,8,8,0" SelectionChanged="iconListView_SelectionChanged"
@@ -129,6 +154,21 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                     </ListView>
+                </Fluent:RibbonGroupBox>
+                <Fluent:RibbonGroupBox Header="Zoom" CanAddToQuickAccessToolBar="False">
+                    <StackPanel Orientation="Vertical" Margin="4,4,4,0">
+                        <Fluent:ToggleButton Name="zoomInButton" Header="Zoom in" Size="Small" ToolTip="Zoom in" Click="onZoom_ToggleButton" Height="35">
+                            <Fluent:ToggleButton.Icon>
+                                <Image Source="Images/zoom_in.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Fluent:ToggleButton.Icon>
+                        </Fluent:ToggleButton>
+                        <Fluent:ToggleButton Name="zoomOutButton" Header="Zoom out" Size="Small" ToolTip="Zoom out" Click="onZoom_ToggleButton" Height="35">
+                            <Fluent:ToggleButton.Icon>
+                                <Image Source="Images/zoom_out.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Fluent:ToggleButton.Icon>
+                        </Fluent:ToggleButton>
+                        
+                    </StackPanel>
                 </Fluent:RibbonGroupBox>
 
                 <Fluent:RibbonGroupBox Header="Style">

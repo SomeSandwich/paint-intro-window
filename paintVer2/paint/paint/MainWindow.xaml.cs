@@ -183,5 +183,20 @@ namespace paint
 
             iconListView.SelectedIndex = 0;
         }
+
+        private void onZoom_ToggleButton(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onChange_ToggleButton(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void onDelete(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
