@@ -172,13 +172,13 @@
                 <Fluent:RibbonGroupBox Header="Zoom" CanAddToQuickAccessToolBar="False">
                     <StackPanel Orientation="Vertical" Margin="4,4,4,0">
                         <Fluent:ToggleButton Name="zoomInButton" Header="Zoom in" Size="Small" ToolTip="Zoom in"
-                                             Click="OnZoom_ToggleButton" Height="35">
+                                             Click="OnZoomIn_ToggleButton" Height="35">
                             <Fluent:ToggleButton.Icon>
                                 <Image Source="Images/zoom_in.png" RenderOptions.BitmapScalingMode="HighQuality" />
                             </Fluent:ToggleButton.Icon>
                         </Fluent:ToggleButton>
                         <Fluent:ToggleButton Name="zoomOutButton" Header="Zoom out" Size="Small" ToolTip="Zoom out"
-                                             Click="OnZoom_ToggleButton" Height="35">
+                                             Click="OnZoomOut_ToggleButton" Height="35">
                             <Fluent:ToggleButton.Icon>
                                 <Image Source="Images/zoom_out.png" RenderOptions.BitmapScalingMode="HighQuality" />
                             </Fluent:ToggleButton.Icon>
