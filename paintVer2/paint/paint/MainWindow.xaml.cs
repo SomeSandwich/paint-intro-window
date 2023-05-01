@@ -360,6 +360,15 @@ namespace paint
 
         private void OnMouseWheelZoom(object sender, MouseWheelEventArgs e)
         {
+            if (e.Delta > 0) // scrolling up
+            {
+                _zoomFactor *= 1.1; // Increase zoom factor by 10%
+            }
+            else // scrolling down
+            {
+                _zoomFactor /= 1.1; // Decrease zoom factor by 10%
+            }
+            ApplyZoom();
         }
 
         private void OnZoomIn_ToggleButton(object sender, RoutedEventArgs e)
