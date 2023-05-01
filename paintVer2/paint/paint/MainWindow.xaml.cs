@@ -331,7 +331,7 @@ namespace paint
             e.Handled = true;
         }
 
-        private void SaveAsPngButton_Click(object sender, RoutedEventArgs e)
+        private void SaveAsBmpButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Microsoft.Win32.SaveFileDialog();
 

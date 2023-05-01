@@ -77,8 +77,8 @@
                     <Fluent:MenuItem Header="Save" Icon="Images/save.png" Name="saveFileButton"
                                      Click="SaveFileButton_Click"
                                      RenderOptions.BitmapScalingMode="HighQuality" />
-                    <Fluent:MenuItem Header="Save as png" Icon="Images/save_as.png" Name="saveAsPngBtn"
-                                     Click="SaveAsPngButton_Click"
+                    <Fluent:MenuItem Header="Save as bmp" Icon="Images/save_as.png" Name="saveAsPngBtn"
+                                     Click="SaveAsBmpButton_Click"
                                      RenderOptions.BitmapScalingMode="HighQuality" />
 
                     <Fluent:MenuItem Header="Import" Icon="Images/import.png" Name="importButton"
