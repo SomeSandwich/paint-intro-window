@@ -76,9 +76,7 @@ namespace paint
             _preview = _shapeFactoryInstance.CreateShape(_currSelectShape);
         }
 
-        private void ImportButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
+       
 
         private void LoadShapedll()
         {
@@ -272,6 +270,30 @@ namespace paint
                 //memoryStream.Close();
 
                 //File.WriteAllBytes(path, memoryStream.ToArray());
+            }
+        }
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewButton_Click(sender, e);
+            if (!e.Handled)
+            {
+                return;
+            }
+            var dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Filter = "PNG (*.png)|*.png| JPEG (*.jpeg)|*.jpeg| BMP (*.bmp)|*.bmp";
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string path = dialog.FileName;
+                _filePathCurrent = path;
+
+                var file = new FileInfo(path);
+                _fileNameCurrent = file.Name;
+
+
+                ImageBrush brush = new ImageBrush();
+                brush.ImageSource = new BitmapImage(new Uri(path, UriKind.Absolute));
+                drawingArea.Background = brush;
             }
         }
 
