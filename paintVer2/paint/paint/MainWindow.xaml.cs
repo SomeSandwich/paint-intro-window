@@ -515,5 +515,16 @@ namespace paint
             ScaleTransform scale = new ScaleTransform(_zoomFactor, _zoomFactor);
             drawingArea.LayoutTransform = scale;
         }
+        private void OnDrawingAreaMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (e.Delta > 0) // scrolling up
+            {
+                drawingAreaScrollViewer.ScrollToVerticalOffset(drawingAreaScrollViewer.VerticalOffset - 16);
+            }
+            else // scrolling down
+            {
+                drawingAreaScrollViewer.ScrollToVerticalOffset(drawingAreaScrollViewer.VerticalOffset + 16);
+            }
+        }
     }
 }
