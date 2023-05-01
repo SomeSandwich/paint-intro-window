@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Contract;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+
 namespace paint
 {
     /// <summary>
@@ -25,11 +28,15 @@ namespace paint
         ShapeFactory shapeFactoryInstance = ShapeFactory.Instance;
         List<IShape> _loadedShapePrototypes = new List<IShape>();
         private string _selectedShapePrototypeName = "";
+        //  
         Stack<IShape> _drawedShapes = new Stack<IShape>();
         Stack<IShape> _redoShapeStack = new Stack<IShape>();
+        //file
         private String? filePathCurrent = null;
         private String? fileNameCurrent = null;
         private bool _isChanged = false;
+
+        private IShape preview = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -145,7 +152,7 @@ namespace paint
             //CurrentColor = new SolidColorBrush(Colors.Black);
 
             //_updateToggleAttribute();
-            //_updateSelectedShapePrototype(0);
+            updateSelectedShape(0);
             iconListView.SelectedIndex = 0;
             dashComboBox.SelectedIndex = 0;
             sizeComboBox.SelectedIndex = 0;
@@ -159,6 +166,17 @@ namespace paint
             //_updateToggleAttribute();
         }
         #endregion
+
+
+        private void updateSelectedShape(int index)
+        {
+            Trace.WriteLine(index);
+            if (index >= _loadedShapePrototypes.Count || index < 0) { return; }
+
+            _selectedShapePrototypeName = _loadedShapePrototypes[index].Name;
+            preview = shapeFactoryInstance.CreateShape(_selectedShapePrototypeName);
+        }
+
 
         private void onCanvasMouseMove(object sender, MouseEventArgs e)
         {
@@ -202,7 +220,9 @@ namespace paint
 
         private void iconListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            var index = iconListView.SelectedIndex;
+            
+            updateSelectedShape(index); 
         }
 
         private void dashComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
