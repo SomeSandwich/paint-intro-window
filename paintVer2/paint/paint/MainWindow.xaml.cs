@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -16,9 +16,10 @@ using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
+
 namespace paint
 {
-    public partial class MainWindow : Fluent.RibbonWindow
+    public partial class MainWindow : Fluent.RibbonWindow, INotifyPropertyChanged
     {
         public MainWindow()
         {
@@ -60,6 +61,13 @@ namespace paint
 
         private IShape _preview = null;
 
+        // size 
+        private double _zoomFactor = 1.0;
+
+
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         #endregion
 
         #region FUNCTION UTILITY
@@ -95,6 +103,9 @@ namespace paint
         {
             redoButton.IsEnabled = _redoShapeStack.Count > 0;
             undoButton.IsEnabled = _drawedShapes.Count > 0;
+            undoButton.ToolTip = undoButton.IsEnabled ? "Undo" : "No Shape to undo";
+            redoButton.ToolTip = redoButton.IsEnabled ? "redo" : "No Shape to undo";
+
         }
 
         private void ResetToDefault()
@@ -140,7 +151,39 @@ namespace paint
 
         private void MainWindow_Closing(object? sender, CancelEventArgs cancelEventArgs)
         {
+            if (_isChanged == false)
+            {
+                return;
+            }
 
+            if (_fileNameCurrent == null)
+            {
+                _fileNameCurrent = "Untitle";
+            }
+
+            String title = $"There are unsaved changes in \"{_fileNameCurrent}\".";
+
+            var result = System.Windows.MessageBox.Show(title, "Do you want to save current work?", MessageBoxButton.YesNoCancel);
+
+            if (MessageBoxResult.Yes == result)
+            {
+                try
+                {
+                    SaveFileBinary();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+            else if (MessageBoxResult.No == result)
+            {
+
+            }
+            else if (MessageBoxResult.Cancel == result)
+            {
+                cancelEventArgs.Cancel = true;
+            }
         }
 
         #endregion
@@ -149,10 +192,29 @@ namespace paint
 
         private void OnUndoButtonClick(object sender, RoutedEventArgs e)
         {
+            IShape stack;
+            bool isAvailble = _drawedShapes.TryPop(out stack);
+            if (isAvailble)
+            {
+                _redoShapeStack.Push(stack);
+                drawingArea.Children.RemoveAt(drawingArea.Children.Count - 1);
+               
+                _updateToggleAttribute();
+            }
         }
 
         private void OnRedoButtonClick(object sender, RoutedEventArgs e)
         {
+
+            IShape stack;
+            bool isAvailble = _redoShapeStack.TryPop(out stack);
+            if (isAvailble)
+            {
+                _drawedShapes.Push(stack);
+                drawingArea.Children.Add(stack.Draw());
+               
+                _updateToggleAttribute();
+            }
         }
 
         #endregion
@@ -383,11 +445,23 @@ namespace paint
 
         private void OnMouseWheelZoom(object sender, MouseWheelEventArgs e)
         {
+            if (e.Delta > 0) // scrolling up
+            {
+                _zoomFactor *= 1.1; // Increase zoom factor by 10%
+            }
+            else // scrolling down
+            {
+                _zoomFactor /= 1.1; // Decrease zoom factor by 10%
+            }
+            ApplyZoom();
         }
 
-        private void OnZoom_ToggleButton(object sender, RoutedEventArgs e)
+        private void OnZoomIn_ToggleButton(object sender, RoutedEventArgs e)
         {
+            _zoomFactor *= 1.1; // Increase zoom factor by 10%
+            ApplyZoom();
         }
+
 
         #endregion
 
@@ -427,6 +501,7 @@ namespace paint
 
         private void BtnCurrSelColor_OnClick(object sender, RoutedEventArgs e)
         {
+            /*System.Windows.Forms.ColorDialog picker*/
             var picker = new ColorDialog();
 
             if (picker.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -514,5 +589,16 @@ namespace paint
         }
 
         #endregion
+
+        private void OnZoomOut_ToggleButton(object sender, RoutedEventArgs e)
+        {
+            _zoomFactor /= 1.1; // Increase zoom factor by 10%
+            ApplyZoom();
+        }
+        private void ApplyZoom()
+        {
+            ScaleTransform scale = new ScaleTransform(_zoomFactor, _zoomFactor);
+            drawingArea.LayoutTransform = scale;
+        }
     }
 }
