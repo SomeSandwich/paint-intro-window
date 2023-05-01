@@ -229,7 +229,38 @@ namespace paint
 
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
+            CreateNewButton_Click(sender, e);
+            if (!e.Handled)
+            {
+                return;
+            }
+            System.Windows.Forms.OpenFileDialog openFile = new System.Windows.Forms.OpenFileDialog();
+            openFile.Filter = "BIN (*.bin)|*.bin|PPF (*.ppf)|*.ppf";
 
+            if (openFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FileStream file = File.Open(openFile.FileName, FileMode.Open);
+                _filePathCurrent = openFile.FileName;
+                _fileNameCurrent = openFile.SafeFileName;
+                Title = $"Paint - {_fileNameCurrent}";
+
+                using (BinaryReader binaryReader = new BinaryReader(file))
+                {
+                    //Đọc đến khi hết file.
+                    while (binaryReader.BaseStream.Position != binaryReader.BaseStream.Length)
+                    {
+                        string name = binaryReader.ReadString();
+                        long size = binaryReader.ReadInt64();
+                        byte[] data = binaryReader.ReadBytes((int)size);
+
+                        IShape shape = _shapeFactoryInstance.CreateShape(name).Deserialize(data);
+                        _drawedShapes.Push(shape);
+                    }
+
+                    RedrawCanvas();
+                }
+                _isChanged = false;
+            }
         }
 
         private void SaveFileButton_Click(object sender, RoutedEventArgs e)
