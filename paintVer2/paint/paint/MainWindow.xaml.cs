@@ -175,6 +175,7 @@ namespace paint
 
             _selectedShapePrototypeName = _loadedShapePrototypes[index].Name;
             preview = shapeFactoryInstance.CreateShape(_selectedShapePrototypeName);
+            
         }
 
 
@@ -185,7 +186,7 @@ namespace paint
 
         private void onPaste(object sender, RoutedEventArgs e)
         {
-
+                                                                
         }
 
         private void onCopy(object sender, RoutedEventArgs e)
@@ -288,7 +289,7 @@ namespace paint
         {
             loadShapedll();
             DataContext = this;
-         /*   _resetToDefault();*/
+            _resetToDefault();
         }
         private void loadShapedll()
         {
