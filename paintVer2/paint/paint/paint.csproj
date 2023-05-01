@@ -42,8 +42,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Circle2D\Circle2D.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\Ellipse2D\Ellipse2D.csproj" />
     <ProjectReference Include="..\Line2D\Line2D.csproj" />
     <ProjectReference Include="..\Rectangle2D\Rectangle2D.csproj" />
   </ItemGroup>

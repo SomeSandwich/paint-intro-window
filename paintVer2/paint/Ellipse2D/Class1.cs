@@ -1,74 +1,80 @@
+
 using Contract;
 using System;
 using System.IO;
 using System.Security.Policy;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Ink;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Point = Contract.Point;
 
-namespace Rectangle2D
-{
-    public class Rectangle2D : IShape
+namespace Ellipse2D
     {
-        public string Name => "Rectangle";
-        public string Icon => "images/rectangle.png";
-        public SolidColorBrush SolidColorBrush { get; set; }
-        public int Thickness { get; set; }
-        public DoubleCollection Stroke { get; set; }
-
-        private Point start = new Point();
-        private Point end = new Point();
-
-
-        public IShape Clone (){ 
-            return new Rectangle2D();
-        }
-        public UIElement Draw()
+        public class Ellipse2D: IShape
         {
-            var left = Math.Min(start.X, end.X);
-            var top = Math.Min(start.Y, end.Y);
+            public string Name => "Ellipse";
+            public string Icon => "Images/ellipse.png";
 
-            var right = Math.Max(start.X, end.X);
-            var bottom = Math.Max(start.Y, end.Y);
+            public SolidColorBrush SolidColorBrush { get; set; }
+
+            public int Thickness { get; set; }
+            public DoubleCollection Stroke { get; set; }
+
+            private Point start = new Point();
+            private Point end = new Point();
+
+            public IShape Clone()
             
-            var width = right - left;
-            var height = bottom - top;
-
-            var rec = new Rectangle()
             {
-                Height = height,
-                Width = width,
+                return new Ellipse2D();
+            }
+            public void HandleEnd(double x, double y)
+            {
+                start= new Point() { X = x, Y = y };
+            }
 
-                StrokeThickness = Thickness,
-                Stroke = SolidColorBrush,
-                StrokeDashArray = Stroke
+            public void HandleStart(double x, double y)
+            {
+                end = new Point() { X = x, Y = y };
+            }
 
-            };
-            Canvas.SetLeft(rec, left);
-            Canvas.SetTop(rec, top);
-            return rec;
-        }
+        public UIElement Draw(SolidColorBrush brush, double thickness, DoubleCollection stroke)
+            {
+                this.SolidColorBrush = brush;
+                this.Stroke = stroke;
+                this.Thickness = (int)thickness;
+
+                return Draw();
+            }
+            public UIElement Draw()
+            {
+                var left = Math.Min(start.X, end.X);
+                var top = Math.Min(start.Y, end.Y);
+
+                var right = Math.Max(start.X, end.X);
+                var bottom = Math.Max(start.Y, end.Y);
+
+                var width = right - left;
+                var height = bottom - top;
+
+                var ellipse = new Ellipse()
+                {
+                    Width = width,
+                    Height = height,
+                    Stroke = SolidColorBrush,
+                    StrokeThickness = Thickness,
+                    StrokeDashArray = Stroke
+                };
 
 
-        public UIElement Draw(SolidColorBrush brush , double thickness, DoubleCollection stroke )
-        {
-            this.SolidColorBrush= brush;
-            this.Stroke = stroke;
-            this.Thickness = (int)thickness;
-            return Draw();
-        }
 
-        public void HandleEnd(double x, double y)
-        {
-            end = new Point() { X = x, Y = y };
-        }
+                Canvas.SetLeft(ellipse, left);
+                Canvas.SetTop(ellipse, top);
 
-        public void HandleStart(double x, double y)
-        {
-            start = new Point() { X = x, Y = y };
-        }
+                return ellipse;
+            }
 
         public byte[] Serialize()
         {
@@ -97,18 +103,16 @@ namespace Rectangle2D
             }
         }
 
-
-
         public IShape Deserialize(byte[] data)
         {
-            Rectangle2D result = new Rectangle2D();
+            Ellipse2D result = new Ellipse2D();
             using (MemoryStream dataStream = new MemoryStream(data))
             {
                 using (BinaryReader reader = new BinaryReader(dataStream))
                 {
                     reader.ReadString(); // Read name point
                     long sizeStart = reader.ReadInt64();
-                    result.start = result.start.Deserialize(reader.ReadBytes((int)sizeStart)) as Point;
+                    result.start= result.end.Deserialize(reader.ReadBytes((int)sizeStart)) as Point;
 
                     reader.ReadString(); // Read name point
                     long sizeEnd = reader.ReadInt64();
@@ -126,5 +130,8 @@ namespace Rectangle2D
                 }
             }
         }
+
     }
+
+
 }

@@ -22,7 +22,7 @@ namespace paint
     public partial class MainWindow : Fluent.RibbonWindow
     {
         //shape 
-        ShapeFactory _shapeFactoryIns = ShapeFactory.Instance;
+        ShapeFactory shapeFactoryInstance = ShapeFactory.Instance;
         List<IShape> _loadedShapePrototypes = new List<IShape>();
         private string _selectedShapePrototypeName = "";
 
@@ -173,7 +173,7 @@ namespace paint
         }
         private void loadShapedll()
         {
-            _loadedShapePrototypes = _shapeFactoryIns.GetPrototypes().Values.ToList();
+            _loadedShapePrototypes = shapeFactoryInstance.GetPrototypes().Values.ToList();
             iconListView.ItemsSource = _loadedShapePrototypes;
 
             if (_loadedShapePrototypes.Count == 0)
