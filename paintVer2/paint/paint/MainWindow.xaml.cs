@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Contract;
 using paint.Constant;
 using Button = System.Windows.Controls.Button;
@@ -101,14 +102,14 @@ namespace paint
         private void ResetToDefault()
         {
             Title = "Paint - Untitle";
-            //_isChanged = false;
-            //_isDrawing = false;
-            //_isNewDrawShape = false;
+            _isChanged = false;
+            _isDrawing = false;
+            _isNewDrawShape = false;
 
             _filePathCurrent = null;
             _fileNameCurrent = null;
 
-            //CurrentColor = new SolidColorBrush(Colors.Black);
+            CurrentColor = new SolidColorBrush(Colors.Black);
 
             //_updateToggleAttribute();
             UpdateSelectedShape(0);
@@ -141,6 +142,7 @@ namespace paint
 
         private void MainWindow_Closing(object? sender, CancelEventArgs cancelEventArgs)
         {
+
         }
 
         #endregion
@@ -195,12 +197,12 @@ namespace paint
                     binaryWriter.Write(shape.Serialize());
                 }
             }
-            //_isChanged = false;
+            _isChanged = false;
         }
 
         private void CreateNewButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((_drawedShapes.Count == 0 && _redoShapeStack.Count == 0) || _isChanged == false)
+            if ((_drawedShapes.Count == 0) || _isChanged == false)
             {
                 ResetToDefault();
                 e.Handled = true;
@@ -210,26 +212,26 @@ namespace paint
             var result = MessageBox.Show("Do you want to save current file?", "Unsaved changes detected",
                 MessageBoxButton.YesNoCancel);
 
-            switch (result)
+            if (result == MessageBoxResult.Yes)
             {
-                case MessageBoxResult.Yes:
-                    SaveFileButton_Click(sender, e);
-
-                    ResetToDefault();
-                    e.Handled = true;
-                    break;
-                case MessageBoxResult.No:
-                    ResetToDefault();
-                    e.Handled = true;
-                    break;
-                case MessageBoxResult.Cancel:
-                    e.Handled = false;
-                    break;
+                SaveFileButton_Click(sender, e);
+                ResetToDefault();
+                e.Handled = true;
+            }
+            else if(result == MessageBoxResult.No )
+            {
+                ResetToDefault();
+                e.Handled = true;
+            }
+            else if(result == MessageBoxResult.Cancel )
+            {
+                e.Handled = false;
             }
         }
 
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
+
         }
 
         private void SaveFileButton_Click(object sender, RoutedEventArgs e)
@@ -240,6 +242,37 @@ namespace paint
 
         private void SaveAsPngButton_Click(object sender, RoutedEventArgs e)
         {
+            var dialog = new Microsoft.Win32.SaveFileDialog();
+
+            dialog.Filter = "BMP (*.bmp)|*.bmp ";
+            dialog.FileName = "Untitle.bmp";
+
+            if (dialog.ShowDialog() == true)
+            {
+                string path = dialog.FileName;
+
+                Rect rect = new Rect(drawingArea.RenderSize);
+                RenderTargetBitmap renderTargetBitmap =
+                    new RenderTargetBitmap((int)rect.Width, (int)rect.Height, 96d, 96d, PixelFormats.Pbgra32);
+                renderTargetBitmap.Render(drawingArea);
+
+                BmpBitmapEncoder bitmapEncoder = new BmpBitmapEncoder();
+                bitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+
+                using (FileStream file = File.Create(path))
+                {
+                    bitmapEncoder.Save(file);
+                }
+                //BitmapEncoder pngEncoder = new PngBitmapEncoder();
+                //pngEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+
+                //MemoryStream memoryStream = new MemoryStream();
+
+                //pngEncoder.Save(memoryStream);
+                //memoryStream.Close();
+
+                //File.WriteAllBytes(path, memoryStream.ToArray());
+            }
         }
 
         #endregion
