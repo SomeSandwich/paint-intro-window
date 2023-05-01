@@ -15,9 +15,10 @@ using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 
+
 namespace paint
 {
-    public partial class MainWindow : Fluent.RibbonWindow
+    public partial class MainWindow : Fluent.RibbonWindow, INotifyPropertyChanged
     {
         public MainWindow()
         {
@@ -58,6 +59,8 @@ namespace paint
 
 
         private IShape _preview = null;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         #endregion
 
@@ -341,6 +344,7 @@ namespace paint
 
         private void BtnCurrSelColor_OnClick(object sender, RoutedEventArgs e)
         {
+            /*System.Windows.Forms.ColorDialog picker*/
             var picker = new ColorDialog();
 
             if (picker.ShowDialog() == System.Windows.Forms.DialogResult.OK)

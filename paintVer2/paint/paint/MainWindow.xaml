@@ -236,7 +236,7 @@
                                 Margin="10 0 10 0 ">
                             <Button Name="BtnCurrSelColor" Width="50" Height="50"
                                     Style="{StaticResource DisableMouseOver}"
-                                    Background="{Binding CurrentColor}" Click="BtnCurrSelColor_OnClick">
+                                    Background="{Binding CurrentColor,Mode=OneWay}" Click="BtnCurrSelColor_OnClick">
                             </Button>
                         </Border>
 
