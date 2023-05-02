@@ -129,6 +129,6 @@ public class Line2D : IShape
 
     public IShape DeepClone()
     {
-        throw new NotImplementedException();
+        return new Line2D();
     }
 }

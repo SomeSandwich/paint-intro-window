@@ -5,6 +5,8 @@ namespace Contract;
 
 public interface IShape : IDeepCopy<IShape>
 {
+    #region VARIABLE
+
     #region Basic Information
 
     string Name { get; }
@@ -23,8 +25,19 @@ public interface IShape : IDeepCopy<IShape>
 
     #endregion
 
+    #endregion
+
+    #region METHOD
+
+    #region Handle Point
 
     void HandleStart(double x, double y);
+
+    public void HandleStart(System.Windows.Point point)
+    {
+        HandleStart(point.X, point.Y);
+    }
+
     void HandleEnd(double x, double y);
 
     public void HandleEnd(System.Windows.Point point)
@@ -32,17 +45,21 @@ public interface IShape : IDeepCopy<IShape>
         HandleEnd(point.X, point.Y);
     }
 
-    public void HandleStart(System.Windows.Point point)
-    {
-        HandleStart(point.X, point.Y);
-    }
+    #endregion
 
-
-    IShape Clone();
+    #region Draw Handle
 
     UIElement Draw(SolidColorBrush brush, double thickness, DoubleCollection line);
     UIElement Draw();
 
+    #endregion
+
+    #region Serialize and Deserilize
+
     byte[] Serialize();
     IShape Deserialize(byte[] data);
+
+    #endregion
+
+    #endregion
 }

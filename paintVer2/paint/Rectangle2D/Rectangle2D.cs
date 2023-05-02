@@ -128,6 +128,6 @@ public class Rectangle2D : IShape
 
     public IShape DeepClone()
     {
-        throw new NotImplementedException();
+        return new Rectangle2D();
     }
 }

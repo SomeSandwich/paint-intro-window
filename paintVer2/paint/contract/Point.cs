@@ -6,6 +6,51 @@ using System.Windows.Shapes;
 
 namespace Contract;
 
+// public class Point : IShape
+// {
+//     public IShape DeepClone()
+//     {
+//         throw new NotImplementedException();
+//     }
+//
+//     public string Name => "Point";
+//     public string Icon => "";
+//     public SolidColorBrush BrushColor { get; set; }
+//     public int BrushThickness { get; set; }
+//     public DoubleCollection BrushStyle { get; set; }
+//
+//     public void HandleStart(double x, double y)
+//     {
+//         X = x;
+//         Y = y;
+//     }
+//
+//     public void HandleEnd(double x, double y)
+//     {
+//         throw new NotImplementedException();
+//     }
+//
+//     public UIElement Draw(SolidColorBrush brush, double thickness, DoubleCollection line)
+//     {
+//         throw new NotImplementedException();
+//     }
+//
+//     public UIElement Draw()
+//     {
+//         throw new NotImplementedException();
+//     }
+//
+//     public byte[] Serialize()
+//     {
+//         throw new NotImplementedException();
+//     }
+//
+//     public IShape Deserialize(byte[] data)
+//     {
+//         throw new NotImplementedException();
+//     }
+// }
+
 public class Point : IShape
 {
     public double X { get; set; }
@@ -40,15 +85,16 @@ public class Point : IShape
 
     public UIElement Draw(SolidColorBrush brush, double thickness, DoubleCollection stroke)
     {
-        this.BrushColor = brush;
-        this.BrushStyle = stroke;
-        this.BrushThickness = (int)thickness;
+        BrushColor = brush;
+        BrushStyle = stroke;
+        BrushThickness = (int)thickness;
+
         return Draw();
     }
 
     public UIElement Draw()
     {
-        Line line = new Line()
+        var line = new Line()
         {
             X1 = X,
             Y1 = Y,
@@ -61,19 +107,6 @@ public class Point : IShape
         throw new System.NotImplementedException();
     }
 
-
-    public IShape Clone()
-    {
-        return new Point();
-    }
-
-    public Point deepCopy()
-    {
-        Point temp = new Point();
-        temp.Y = this.Y;
-        temp.X = this.X;
-        return temp;
-    }
 
     public byte[] Serialize()
     {
@@ -117,6 +150,6 @@ public class Point : IShape
 
     public IShape DeepClone()
     {
-        throw new NotImplementedException();
+        return new Point();
     }
 }

@@ -13,30 +13,36 @@ namespace Contract
 
         public static ShapeFactory Instance
         {
-            get {
-                if(instance== null)
+            get
+            {
+                if (instance == null)
                 {
                     instance = new ShapeFactory();
                 }
+
                 return instance;
-            } 
+            }
         }
+
         private ShapeFactory()
         {
             LoadShapePrototypes();
         }
+
         public IShape CreateShape(string name)
         {
             IShape shape = null;
             if (prototypes.ContainsKey(name))
-                shape = prototypes[name].Clone();
+                shape = prototypes[name].DeepClone();
             return (IShape)shape;
         }
+
         public void Reload()
         {
             prototypes.Clear();
             LoadShapePrototypes();
         }
+
         private IShape? getPaintShapeFromDll(FileInfo fileInfo)
         {
             Assembly assembly = Assembly.Load(AssemblyName.GetAssemblyName(fileInfo.FullName));
@@ -44,14 +50,14 @@ namespace Contract
             Type[] types = assembly.GetTypes();
 
             IEnumerable<IShape?> results = types.Where(type =>
-            {
-                bool check = type.IsClass && typeof(IShape).IsAssignableFrom(type)
-                                    && !typeof(Point).Equals(type);
+                {
+                    bool check = type.IsClass && typeof(IShape).IsAssignableFrom(type)
+                                              && !typeof(Point).Equals(type);
 
-                return type.IsClass && typeof(IShape).IsAssignableFrom(type)
-                                    && !typeof(Point).Equals(type);
-            })
-             .Select(type => Activator.CreateInstance(type) as IShape);
+                    return type.IsClass && typeof(IShape).IsAssignableFrom(type)
+                                        && !typeof(Point).Equals(type);
+                })
+                .Select(type => Activator.CreateInstance(type) as IShape);
 
             foreach (var result in results)
             {
@@ -60,6 +66,7 @@ namespace Contract
 
             return null;
         }
+
         public Dictionary<string, IShape> GetPrototypes()
         {
             return prototypes;
@@ -93,7 +100,5 @@ namespace Contract
                 }
             }
         }
-
-
     }
 }

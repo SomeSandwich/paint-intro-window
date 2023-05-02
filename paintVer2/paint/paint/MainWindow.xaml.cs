@@ -28,30 +28,32 @@ namespace paint
         #region VARIABLE
 
         // Status
-        private bool _isDrawing = false;
-        private bool _isNewDrawShape = false;
-        private bool _isEditing = false;
-        private bool _isChanged = false;
+        public bool IsDrawing { get; set; }
 
-        private bool _isZooming = false;
-        private bool _isZoomingIn = false;
-        private bool _isSelectingShape;
+        public bool IsNewDrawShape { get; set; }
+
+        // public bool IsEditing { get; set; } = false;
+        public bool IsChanged { get; set; } = false;
+
+        // public bool IsZooming { get; set; } = false;
+        // public bool IsZoomingIn { get; set; } = false;
+        // public bool IsSelectingShape { get; set; }
 
         // Pen
-        private int _currentThickness = 1;
-        private DoubleCollection _currentStrokeStyle = new DoubleCollection();
+        public int CurrentThickness { get; set; } = 1;
+        public DoubleCollection _currentStrokeStyle { get; set; } = new();
         public SolidColorBrush CurrentColor { get; set; } = new(Colors.Black);
 
-        private Matrix _originalMatrix;
+        // private Matrix _originalMatrix;
 
         // Shape Thing 
-        private readonly ShapeFactory _shapeFactoryInstance = ShapeFactory.Instance;
-        private List<IShape> _loadedShapePrototypes = new();
+        public readonly ShapeFactory _shapeFactoryInstance = ShapeFactory.Instance;
+        public List<IShape> LoadedShapePrototypes { get; set; } = new();
 
-        private string _currSelectShape = "";
+        public string CurrSelectShape { get; set; } = "";
 
-        private readonly Stack<IShape> _drawedShapes = new();
-        private readonly Stack<IShape> _redoShapeStack = new();
+        public Stack<IShape> _drawedShapes { get; set; } = new();
+        public Stack<IShape> _redoShapeStack { get; set; } = new();
 
         // File
         private string? _filePathCurrent = null;
@@ -61,8 +63,7 @@ namespace paint
         private IShape _preview = null;
 
         // size 
-        private double _zoomFactor = 1.0;
-
+        public double ZoomFactor { get; set; } = 1.0;
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -74,13 +75,13 @@ namespace paint
         private void UpdateSelectedShape(int index)
         {
             Trace.WriteLine(index);
-            if (index >= _loadedShapePrototypes.Count || index < 0)
+            if (index >= LoadedShapePrototypes.Count || index < 0)
             {
                 return;
             }
 
-            _currSelectShape = _loadedShapePrototypes[index].Name;
-            _preview = _shapeFactoryInstance.CreateShape(_currSelectShape);
+            CurrSelectShape = LoadedShapePrototypes[index].Name;
+            _preview = _shapeFactoryInstance.CreateShape(CurrSelectShape);
         }
 
         private void ImportButton_Click(object sender, RoutedEventArgs e)
@@ -89,10 +90,10 @@ namespace paint
 
         private void LoadShapedll()
         {
-            _loadedShapePrototypes = _shapeFactoryInstance.GetPrototypes().Values.ToList();
-            iconListView.ItemsSource = _loadedShapePrototypes;
+            LoadedShapePrototypes = _shapeFactoryInstance.GetPrototypes().Values.ToList();
+            iconListView.ItemsSource = LoadedShapePrototypes;
 
-            if (_loadedShapePrototypes.Count == 0)
+            if (LoadedShapePrototypes.Count == 0)
             {
                 return;
             }
@@ -106,7 +107,6 @@ namespace paint
             undoButton.IsEnabled = _drawedShapes.Count > 0;
             undoButton.ToolTip = undoButton.IsEnabled ? "Undo" : "No Shape to undo";
             redoButton.ToolTip = redoButton.IsEnabled ? "redo" : "No Shape to undo";
-
         }
 
         private void ResetToDefault()
@@ -138,8 +138,6 @@ namespace paint
 
         #endregion
 
-        // #TODO:
-
         #region WINDOW HANDLE
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -152,7 +150,7 @@ namespace paint
 
         private void MainWindow_Closing(object? sender, CancelEventArgs cancelEventArgs)
         {
-            if (_isChanged == false)
+            if (IsChanged == false)
             {
                 return;
             }
@@ -164,7 +162,8 @@ namespace paint
 
             String title = $"There are unsaved changes in \"{_fileNameCurrent}\".";
 
-            var result = System.Windows.MessageBox.Show(title, "Do you want to save current work?", MessageBoxButton.YesNoCancel);
+            var result = System.Windows.MessageBox.Show(title, "Do you want to save current work?",
+                MessageBoxButton.YesNoCancel);
 
             if (MessageBoxResult.Yes == result)
             {
@@ -179,7 +178,6 @@ namespace paint
             }
             else if (MessageBoxResult.No == result)
             {
-
             }
             else if (MessageBoxResult.Cancel == result)
             {
@@ -199,21 +197,20 @@ namespace paint
             {
                 _redoShapeStack.Push(stack);
                 drawingArea.Children.RemoveAt(drawingArea.Children.Count - 1);
-               
+
                 _updateToggleAttribute();
             }
         }
 
         private void OnRedoButtonClick(object sender, RoutedEventArgs e)
         {
-
             IShape stack;
             bool isAvailble = _redoShapeStack.TryPop(out stack);
             if (isAvailble)
             {
                 _drawedShapes.Push(stack);
                 drawingArea.Children.Add(stack.Draw());
-               
+
                 _updateToggleAttribute();
             }
         }
@@ -263,7 +260,7 @@ namespace paint
 
         private void CreateNewButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((_drawedShapes.Count == 0 && _redoShapeStack.Count == 0) || _isChanged == false)
+            if ((_drawedShapes.Count == 0 && _redoShapeStack.Count == 0) || IsChanged == false)
             {
                 ResetToDefault();
                 e.Handled = true;
@@ -309,8 +306,6 @@ namespace paint
 
         #region TAB HOME
 
-        // #TODO:
-
         #region CLIPBOARD HANDLE
 
         private void OnPaste(object sender, RoutedEventArgs e)
@@ -327,7 +322,6 @@ namespace paint
 
         #endregion
 
-        // #TODO:
 
         #region TOOL HANDLE
 
@@ -341,7 +335,6 @@ namespace paint
 
         #endregion
 
-        // #TODO:
 
         #region SHAPE HANDLE
 
@@ -358,41 +351,55 @@ namespace paint
 
         #region ZOOM HANDLE
 
+        private void ApplyZoom()
+        {
+            var scale = new ScaleTransform(ZoomFactor, ZoomFactor);
+
+            drawingArea.LayoutTransform = scale;
+        }
+
         private void OnMouseWheelZoom(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0) // scrolling up
             {
-                _zoomFactor *= 1.1; // Increase zoom factor by 10%
+                ZoomFactor *= 1.1; // Increase zoom factor by 10%
             }
             else // scrolling down
             {
-                _zoomFactor /= 1.1; // Decrease zoom factor by 10%
+                ZoomFactor /= 1.1; // Decrease zoom factor by 10%
             }
+
             ApplyZoom();
         }
 
         private void OnZoomIn_ToggleButton(object sender, RoutedEventArgs e)
         {
-            _zoomFactor *= 1.1; // Increase zoom factor by 10%
+            ZoomFactor *= 1.1; // Increase zoom factor by 10%
+
             ApplyZoom();
         }
 
+        private void OnZoomOut_ToggleButton(object sender, RoutedEventArgs e)
+        {
+            ZoomFactor /= 1.1; // Increase zoom factor by 10%
+
+            ApplyZoom();
+        }
 
         #endregion
 
-        // #TODO:
 
         #region STYLE HANDLE
 
         private void CbSizeBrush_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _currentThickness = CbSizeBrush.SelectedIndex switch
+            CurrentThickness = CbSizeBrush.SelectedIndex switch
             {
                 0 => (int)BrushSizeEnum.Size1,
                 1 => (int)BrushSizeEnum.Size2,
                 2 => (int)BrushSizeEnum.Size3,
                 3 => (int)BrushSizeEnum.Size5,
-                _ => _currentThickness
+                _ => CurrentThickness
             };
         }
 
@@ -410,7 +417,6 @@ namespace paint
 
         #endregion
 
-        // #TODO: Change background color of current selected btn
 
         #region COLOR HANDLE
 
@@ -458,15 +464,15 @@ namespace paint
 
         private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
-            _isDrawing = true;
-            _isNewDrawShape = true;
+            IsDrawing = true;
+            IsNewDrawShape = true;
 
             _preview.HandleStart(e.GetPosition(drawingArea));
         }
 
         private void OnCanvasMouseMove(object sender, MouseEventArgs e)
         {
-            if (!_isDrawing) return;
+            if (!IsDrawing) return;
 
             if (_redoShapeStack.Count > 0)
             {
@@ -474,12 +480,12 @@ namespace paint
             }
 
             _preview.HandleEnd(e.GetPosition(drawingArea));
-            var uiElement = _preview.Draw(CurrentColor, _currentThickness, _currentStrokeStyle);
+            var uiElement = _preview.Draw(CurrentColor, CurrentThickness, _currentStrokeStyle);
 
-            if (_isNewDrawShape)
+            if (IsNewDrawShape)
             {
                 DrawShape(uiElement, false);
-                _isNewDrawShape = false;
+                IsNewDrawShape = false;
             }
             else
             {
@@ -489,31 +495,20 @@ namespace paint
 
         private void OnCanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (_isDrawing)
+            if (IsDrawing)
             {
-                _isChanged = true;
-                _isDrawing = false;
+                IsChanged = true;
+                IsDrawing = false;
                 _preview.HandleEnd(e.GetPosition(drawingArea));
                 _drawedShapes.Push(_preview);
 
                 // Create new shape
-                _preview = _shapeFactoryInstance.CreateShape(_currSelectShape);
+                _preview = _shapeFactoryInstance.CreateShape(CurrSelectShape);
             }
 
             _updateToggleAttribute();
         }
 
         #endregion
-
-        private void OnZoomOut_ToggleButton(object sender, RoutedEventArgs e)
-        {
-            _zoomFactor /= 1.1; // Increase zoom factor by 10%
-            ApplyZoom();
-        }
-        private void ApplyZoom()
-        {
-            ScaleTransform scale = new ScaleTransform(_zoomFactor, _zoomFactor);
-            drawingArea.LayoutTransform = scale;
-        }
     }
 }

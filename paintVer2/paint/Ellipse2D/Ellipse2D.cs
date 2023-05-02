@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+// using Point = System.Windows.Point;
 using Point = Contract.Point;
 
 namespace Ellipse2D;
@@ -131,6 +132,6 @@ public class Ellipse2D : IShape
 
     public IShape DeepClone()
     {
-        throw new NotImplementedException();
+        return new Ellipse2D();
     }
 }
