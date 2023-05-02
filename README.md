@@ -57,7 +57,7 @@ All basic features have been completed. In addition, I have added some improved 
 
 ### Link github
 
-> ***https://github.com/SomeSandwich/myshop-intro-window.git***
+> ***https://github.com/SomeSandwich/paint-intro-window.git***
 
 ### License
 
