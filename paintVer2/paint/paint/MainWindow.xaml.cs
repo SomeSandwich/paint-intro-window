@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Contract;
 using paint.Constant;
 using Button = System.Windows.Controls.Button;
@@ -83,9 +84,7 @@ namespace paint
             _preview = _shapeFactoryInstance.CreateShape(_currSelectShape);
         }
 
-        private void ImportButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
+       
 
         private void LoadShapedll()
         {
@@ -112,14 +111,14 @@ namespace paint
         private void ResetToDefault()
         {
             Title = "Paint - Untitle";
-            //_isChanged = false;
-            //_isDrawing = false;
-            //_isNewDrawShape = false;
+            _isChanged = false;
+            _isDrawing = false;
+            _isNewDrawShape = false;
 
             _filePathCurrent = null;
             _fileNameCurrent = null;
 
-            //CurrentColor = new SolidColorBrush(Colors.Black);
+            CurrentColor = new SolidColorBrush(Colors.Black);
 
             //_updateToggleAttribute();
             UpdateSelectedShape(0);
@@ -258,12 +257,12 @@ namespace paint
                     binaryWriter.Write(shape.Serialize());
                 }
             }
-            //_isChanged = false;
+            _isChanged = false;
         }
 
         private void CreateNewButton_Click(object sender, RoutedEventArgs e)
         {
-            if ((_drawedShapes.Count == 0 && _redoShapeStack.Count == 0) || _isChanged == false)
+            if ((_drawedShapes.Count == 0) || _isChanged == false)
             {
                 ResetToDefault();
                 e.Handled = true;
@@ -273,26 +272,57 @@ namespace paint
             var result = MessageBox.Show("Do you want to save current file?", "Unsaved changes detected",
                 MessageBoxButton.YesNoCancel);
 
-            switch (result)
+            if (result == MessageBoxResult.Yes)
             {
-                case MessageBoxResult.Yes:
-                    SaveFileButton_Click(sender, e);
-
-                    ResetToDefault();
-                    e.Handled = true;
-                    break;
-                case MessageBoxResult.No:
-                    ResetToDefault();
-                    e.Handled = true;
-                    break;
-                case MessageBoxResult.Cancel:
-                    e.Handled = false;
-                    break;
+                SaveFileButton_Click(sender, e);
+                ResetToDefault();
+                e.Handled = true;
+            }
+            else if(result == MessageBoxResult.No )
+            {
+                ResetToDefault();
+                e.Handled = true;
+            }
+            else if(result == MessageBoxResult.Cancel )
+            {
+                e.Handled = false;
             }
         }
 
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
         {
+            CreateNewButton_Click(sender, e);
+            if (!e.Handled)
+            {
+                return;
+            }
+            System.Windows.Forms.OpenFileDialog openFile = new System.Windows.Forms.OpenFileDialog();
+            openFile.Filter = "BIN (*.bin)|*.bin|PPF (*.ppf)|*.ppf";
+
+            if (openFile.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FileStream file = File.Open(openFile.FileName, FileMode.Open);
+                _filePathCurrent = openFile.FileName;
+                _fileNameCurrent = openFile.SafeFileName;
+                Title = $"Paint - {_fileNameCurrent}";
+
+                using (BinaryReader binaryReader = new BinaryReader(file))
+                {
+                    //Đọc đến khi hết file.
+                    while (binaryReader.BaseStream.Position != binaryReader.BaseStream.Length)
+                    {
+                        string name = binaryReader.ReadString();
+                        long size = binaryReader.ReadInt64();
+                        byte[] data = binaryReader.ReadBytes((int)size);
+
+                        IShape shape = _shapeFactoryInstance.CreateShape(name).Deserialize(data);
+                        _drawedShapes.Push(shape);
+                    }
+
+                    RedrawCanvas();
+                }
+                _isChanged = false;
+            }
         }
 
         private void SaveFileButton_Click(object sender, RoutedEventArgs e)
@@ -301,8 +331,63 @@ namespace paint
             e.Handled = true;
         }
 
-        private void SaveAsPngButton_Click(object sender, RoutedEventArgs e)
+        private void SaveAsBmpButton_Click(object sender, RoutedEventArgs e)
         {
+            var dialog = new Microsoft.Win32.SaveFileDialog();
+
+            dialog.Filter = "BMP (*.bmp)|*.bmp ";
+            dialog.FileName = "Untitle.bmp";
+
+            if (dialog.ShowDialog() == true)
+            {
+                string path = dialog.FileName;
+
+                Rect rect = new Rect(drawingArea.RenderSize);
+                RenderTargetBitmap renderTargetBitmap =
+                    new RenderTargetBitmap((int)rect.Width, (int)rect.Height, 96d, 96d, PixelFormats.Pbgra32);
+                renderTargetBitmap.Render(drawingArea);
+
+                BmpBitmapEncoder bitmapEncoder = new BmpBitmapEncoder();
+                bitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+
+                using (FileStream file = File.Create(path))
+                {
+                    bitmapEncoder.Save(file);
+                }
+                //BitmapEncoder pngEncoder = new PngBitmapEncoder();
+                //pngEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+
+                //MemoryStream memoryStream = new MemoryStream();
+
+                //pngEncoder.Save(memoryStream);
+                //memoryStream.Close();
+
+                //File.WriteAllBytes(path, memoryStream.ToArray());
+            }
+        }
+        private void ImportButton_Click(object sender, RoutedEventArgs e)
+        {
+            CreateNewButton_Click(sender, e);
+            if (!e.Handled)
+            {
+                return;
+            }
+            var dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Filter = "PNG (*.png)|*.png| JPEG (*.jpeg)|*.jpeg| BMP (*.bmp)|*.bmp";
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string path = dialog.FileName;
+                _filePathCurrent = path;
+
+                var file = new FileInfo(path);
+                _fileNameCurrent = file.Name;
+
+
+                ImageBrush brush = new ImageBrush();
+                brush.ImageSource = new BitmapImage(new Uri(path, UriKind.Absolute));
+                drawingArea.Background = brush;
+            }
         }
 
         #endregion
