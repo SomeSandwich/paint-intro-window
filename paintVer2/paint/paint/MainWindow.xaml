@@ -143,8 +143,8 @@
 
                 <Fluent:RibbonGroupBox Header="Shapes">
                     <!--Add shapes' icon here-->
-                    <ListView Name="iconListView" Width="200" Height="60" Margin="8,8,8,0"
-                              SelectionChanged="iconListView_SelectionChanged"
+                    <ListView Name="LvShape" Width="200" Height="60" Margin="8,8,8,0"
+                              SelectionChanged="LvShape_SelectionChanged"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -338,18 +338,15 @@
 
         </Fluent:Ribbon>
 
-        <Grid Grid.Row="1" Name="drawingContainer" MouseWheel="OnMouseWheelZoom">
-            <Canvas Name="drawingArea" Background="White" ClipToBounds="True" RenderTransformOrigin="0.5,0.5">
+        <Grid Grid.Row="1" Name="DrawingContainer" MouseWheel="OnMouseWheelZoom">
+            <Canvas Name="CvDrawing" Background="White" ClipToBounds="True" RenderTransformOrigin="0.5,0.5">
                 <Canvas.RenderTransform>
                     <MatrixTransform />
                 </Canvas.RenderTransform>
             </Canvas>
-            <Border Background="Transparent" MouseDown="OnCanvasMouseDown" MouseUp="OnCanvasMouseUp"
-                    MouseMove="OnCanvasMouseMove">
+            <Border Background="Transparent" MouseDown="OnCvDrawingMouseDown" MouseUp="OnCvDrawingMouseUp"
+                    MouseMove="OnCvDrawingMouseMove">
             </Border>
-            <!--<Border Background="Transparent" IsHitTestVisible="True" MouseDown="drawingArea_MouseDown" MouseUp="drawingArea_MouseUp"
-                MouseMove="drawingArea_MouseMove" MouseEnter="drawingArea_MouseEnter" MouseLeave="drawingArea_MouseLeave"/>
-            <Canvas Name="drawingArea" IsHitTestVisible="False" ClipToBounds="True" Background="White" Height="550" Width="1250"/>-->
         </Grid>
     </Grid>
 </Fluent:RibbonWindow>

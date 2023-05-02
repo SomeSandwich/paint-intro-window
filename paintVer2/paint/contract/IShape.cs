@@ -13,6 +13,13 @@ public interface IShape : IDeepCopy<IShape>
 
     #endregion
 
+    #region Region
+
+    public System.Windows.Point Start { get; set; }
+    public System.Windows.Point End { get; set; }
+
+    #endregion
+
     #region Brush Information
 
     SolidColorBrush BrushColor { get; set; }
@@ -25,6 +32,12 @@ public interface IShape : IDeepCopy<IShape>
 
 
     void HandleStart(double x, double y);
+
+    public void HandleStart(System.Windows.Point point)
+    {
+        HandleStart(point.X, point.Y);
+    }
+
     void HandleEnd(double x, double y);
 
     public void HandleEnd(System.Windows.Point point)
@@ -32,13 +45,6 @@ public interface IShape : IDeepCopy<IShape>
         HandleEnd(point.X, point.Y);
     }
 
-    public void HandleStart(System.Windows.Point point)
-    {
-        HandleStart(point.X, point.Y);
-    }
-
-
-    IShape Clone();
 
     UIElement Draw(SolidColorBrush brush, double thickness, DoubleCollection line);
     UIElement Draw();

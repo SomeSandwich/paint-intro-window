@@ -4,96 +4,80 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Contract
+namespace Contract;
+
+public class ShapeFactory
 {
-    public class ShapeFactory
+    private static ShapeFactory? _instance;
+    private static readonly Dictionary<string, IShape> Prototypes = new();
+
+    private ShapeFactory()
     {
-        private static ShapeFactory instance = null;
-        private Dictionary<string, IShape> prototypes = new Dictionary<string, IShape>();
+        LoadShapePrototypes();
+    }
 
-        public static ShapeFactory Instance
-        {
-            get {
-                if(instance== null)
-                {
-                    instance = new ShapeFactory();
-                }
-                return instance;
-            } 
-        }
-        private ShapeFactory()
-        {
-            LoadShapePrototypes();
-        }
-        public IShape CreateShape(string name)
-        {
-            IShape shape = null;
-            if (prototypes.ContainsKey(name))
-                shape = prototypes[name].Clone();
-            return (IShape)shape;
-        }
-        public void Reload()
-        {
-            prototypes.Clear();
-            LoadShapePrototypes();
-        }
-        private IShape? getPaintShapeFromDll(FileInfo fileInfo)
-        {
-            Assembly assembly = Assembly.Load(AssemblyName.GetAssemblyName(fileInfo.FullName));
-            //Assembly assembly = Assembly.LoadFile(fileInfo.FullName);
-            Type[] types = assembly.GetTypes();
+    public static ShapeFactory GetInstance()
+    {
+        return _instance ??= new ShapeFactory();
+    }
 
-            IEnumerable<IShape?> results = types.Where(type =>
+    public Dictionary<string, IShape> GetPrototypes()
+    {
+        return Prototypes;
+    }
+
+    public void Reload()
+    {
+        Prototypes.Clear();
+
+        LoadShapePrototypes();
+    }
+
+    public IShape? CreateShape(string name)
+    {
+        return Prototypes.TryGetValue(name, out var shape) ? shape.DeepClone() : null;
+    }
+
+    private static void LoadShapePrototypes()
+    {
+        var programFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        if (programFolder == null) return;
+
+        var folder = new DirectoryInfo(programFolder);
+        if (!folder.Exists)
+        {
+            folder.Create();
+            return;
+        }
+
+        var dllFiles = folder.GetFiles("*.dll");
+        foreach (var dll in dllFiles)
+        {
+            var shape = GetPaintShapeFromDll(dll);
+
+            if (shape == null) continue;
+
+            try
             {
-                bool check = type.IsClass && typeof(IShape).IsAssignableFrom(type)
-                                    && !typeof(Point).Equals(type);
-
-                return type.IsClass && typeof(IShape).IsAssignableFrom(type)
-                                    && !typeof(Point).Equals(type);
-            })
-             .Select(type => Activator.CreateInstance(type) as IShape);
-
-            foreach (var result in results)
-            {
-                return result;
+                Prototypes.TryAdd(shape.Name, shape);
             }
-
-            return null;
-        }
-        public Dictionary<string, IShape> GetPrototypes()
-        {
-            return prototypes;
-        }
-
-        public void LoadShapePrototypes()
-        {
-            string exePath = Assembly.GetExecutingAssembly().Location;
-            //string _folder = Path.GetDirectoryName(exePath) + "/shapes";
-            string _folder = Path.GetDirectoryName(exePath);
-
-            DirectoryInfo shapesDir = new DirectoryInfo(_folder);
-            if (!shapesDir.Exists)
+            catch
             {
-                shapesDir.Create();
-                return;
-            }
-
-            FileInfo[] fis = new DirectoryInfo(_folder).GetFiles("*.dll");
-            foreach (FileInfo fileInfo in fis)
-            {
-                IShape? shape = getPaintShapeFromDll(fileInfo);
-                if (shape != null)
-                {
-                    Console.WriteLine(shape.Name);
-                }
-
-                if (shape != null && !prototypes.ContainsKey(shape.Name))
-                {
-                    prototypes.Add(shape.Name, shape);
-                }
+                // ignored
             }
         }
+    }
 
+    private static IShape? GetPaintShapeFromDll(FileSystemInfo fileInfo)
+    {
+        var assembly = Assembly.Load(AssemblyName.GetAssemblyName(fileInfo.FullName));
+        var types = assembly.GetTypes();
 
+        return types
+            .Where(t =>
+                t.IsClass && typeof(IShape).IsAssignableFrom(t))
+            .Select(t => Activator.CreateInstance(t) as IShape)
+            .FirstOrDefault();
     }
 }
