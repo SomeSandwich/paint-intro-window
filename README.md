@@ -47,6 +47,17 @@ All basic features have been completed. In addition, I have added some improved 
   
 **? score**
 
-### Link video demo
+### Link demo
 
-not yet
+>***not yet***
+
+### Link drive bài nộp
+
+>***not yet***
+
+### Link github
+
+> ***https://github.com/SomeSandwich/myshop-intro-window.git***
+
+### License
+
