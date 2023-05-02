@@ -1,4 +1,4 @@
-# myshop-intro-window
+# paint-intro-window
 
 | Full name | MSSV | Email| 
 |--|--|--|
