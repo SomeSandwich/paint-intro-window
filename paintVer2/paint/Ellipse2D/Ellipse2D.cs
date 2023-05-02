@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Point = Contract.Point;
 
 namespace Ellipse2D;
 
@@ -14,51 +13,44 @@ public class Ellipse2D : IShape
     public string Name => "Ellipse";
     public string Icon => "Images/ellipse.png";
 
-    public SolidColorBrush BrushColor { get; set; }
+    public System.Windows.Point Start { get; set; }
+    public System.Windows.Point End { get; set; }
 
+    public SolidColorBrush BrushColor { get; set; }
     public int BrushThickness { get; set; }
     public DoubleCollection BrushStyle { get; set; }
 
-    private Point start = new Point();
-    private Point end = new Point();
-
-    public IShape Clone()
-
+    public void HandleStart(double x, double y)
     {
-        return new Ellipse2D();
+        Start = new System.Windows.Point(x, y);
     }
 
     public void HandleEnd(double x, double y)
     {
-        start = new Point() { X = x, Y = y };
-    }
-
-    public void HandleStart(double x, double y)
-    {
-        end = new Point() { X = x, Y = y };
+        End = new System.Windows.Point(x, y);
     }
 
     public UIElement Draw(SolidColorBrush brush, double thickness, DoubleCollection stroke)
     {
-        this.BrushColor = brush;
-        this.BrushStyle = stroke;
-        this.BrushThickness = (int)thickness;
+        BrushColor = brush;
+        BrushStyle = stroke;
+        BrushThickness = (int)thickness;
 
         return Draw();
     }
 
     public UIElement Draw()
     {
-        var left = Math.Min(start.X, end.X);
-        var top = Math.Min(start.Y, end.Y);
+        var left = Math.Min(Start.X, End.X);
+        var top = Math.Min(Start.Y, End.Y);
 
-        var right = Math.Max(start.X, end.X);
-        var bottom = Math.Max(start.Y, end.Y);
+        var right = Math.Max(Start.X, End.X);
+        var bottom = Math.Max(Start.Y, End.Y);
 
         var width = right - left;
         var height = bottom - top;
 
-        var ellipse = new Ellipse()
+        var shape = new Ellipse()
         {
             Width = width,
             Height = height,
@@ -67,70 +59,75 @@ public class Ellipse2D : IShape
             StrokeDashArray = BrushStyle
         };
 
+        Canvas.SetLeft(shape, left);
+        Canvas.SetTop(shape, top);
 
-        Canvas.SetLeft(ellipse, left);
-        Canvas.SetTop(ellipse, top);
-
-        return ellipse;
+        return shape;
     }
 
     public byte[] Serialize()
     {
-        using (MemoryStream data = new MemoryStream())
+        try
         {
-            using (BinaryWriter writer = new BinaryWriter(data))
-            {
-                writer.Write(start.Serialize());
-                writer.Write(end.Serialize());
-                writer.Write(BrushColor.ToString());
-                writer.Write(BrushThickness);
-                writer.Write(BrushStyle.ToString());
+            using var detailData = new MemoryStream();
+            using var writerDetail = new BinaryWriter(detailData);
 
-                using (MemoryStream content = new MemoryStream())
-                {
-                    using (BinaryWriter writer1 = new BinaryWriter(content))
-                    {
-                        writer1.Write(Name);
-                        writer1.Write(data.Length);
-                        writer1.Write(data.ToArray());
+            writerDetail.Write(Start.Serialize());
+            writerDetail.Write(End.Serialize());
+            writerDetail.Write(BrushColor.ToString());
+            writerDetail.Write(BrushThickness);
+            writerDetail.Write(BrushStyle.ToString());
 
-                        return content.ToArray();
-                    }
-                }
-            }
+            using var shapeData = new MemoryStream();
+            using var writerShape = new BinaryWriter(shapeData);
+
+            writerShape.Write(Name);
+            writerShape.Write(detailData.Length);
+            writerShape.Write(detailData.ToArray());
+
+            return shapeData.ToArray();
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.StackTrace);
+        }
+
+        return null;
     }
 
     public IShape Deserialize(byte[] data)
     {
-        Ellipse2D result = new Ellipse2D();
-        using (MemoryStream dataStream = new MemoryStream(data))
-        {
-            using (BinaryReader reader = new BinaryReader(dataStream))
-            {
-                reader.ReadString(); // Read name point
-                long sizeStart = reader.ReadInt64();
-                result.start = result.end.Deserialize(reader.ReadBytes((int)sizeStart)) as Point;
+        var result = new Ellipse2D();
+        using var dataStream = new MemoryStream(data);
+        using var reader = new BinaryReader(dataStream);
 
-                reader.ReadString(); // Read name point
-                long sizeEnd = reader.ReadInt64();
-                result.end = result.end.Deserialize(reader.ReadBytes((int)sizeEnd)) as Point;
+        // Start Point
+        reader.ReadString();
+        var szDetailStart = reader.ReadInt64();
+        result.Start = result.Start.Deserialize(reader.ReadBytes((int)szDetailStart));
 
-                BrushConverter brushConverter = new BrushConverter();
-                result.BrushColor = brushConverter.ConvertFromString(reader.ReadString()) as SolidColorBrush;
+        // End Point
+        reader.ReadString();
+        var szDetailEnd = reader.ReadInt64();
+        result.End = result.End.Deserialize(reader.ReadBytes((int)szDetailEnd));
 
-                result.BrushThickness = reader.ReadInt32();
+        // Brush Color
+        var brushConverter = new BrushConverter();
+        result.BrushColor = brushConverter.ConvertFromString(reader.ReadString()) as SolidColorBrush;
 
-                DoubleCollectionConverter converter = new DoubleCollectionConverter();
-                result.BrushStyle = converter.ConvertFromString(reader.ReadString()) as DoubleCollection;
+        // Brush Thickness
+        result.BrushThickness = reader.ReadInt32();
 
-                return result;
-            }
-        }
+        // Brush Style
+        var converter = new DoubleCollectionConverter();
+        result.BrushStyle = converter.ConvertFromString(reader.ReadString()) as DoubleCollection;
+
+        return result;
     }
 
     public IShape DeepClone()
     {
-        throw new NotImplementedException();
+        return new Ellipse2D();
     }
 }
