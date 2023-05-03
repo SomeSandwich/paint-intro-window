@@ -5,7 +5,7 @@
 | Nguyễn Tấn Hiếu | 20127159 | hieucckha@gmail.com |
 | Võ Thanh Sương | 20127312 | vothanhsuong123@gmail.com |
 | Võ Minh Thông | 20127638 | thong89x@gmail.com|
-| Nguyễn Văn Hậu |20127493 | |
+| Nguyễn Văn Hậu |20127493 | vanhau02qn@gmail.com|
   
 ## Instructions to download the file and run it for the first time
 
