@@ -45,7 +45,8 @@ All basic features have been completed. In addition, I have added some improved 
 
 ### Self-assessment score
   
-**? score**
+- 7 Point
+- Plus score 2 Point
 
 ### Link demo
 
@@ -53,11 +54,11 @@ All basic features have been completed. In addition, I have added some improved 
 
 ### Link drive bài nộp
 
->***not yet***
+https://drive.google.com/file/d/1fdeXa-vFSRMp4FhKvG5eW31iWhZ8730F/view?usp=share_link
 
 ### Link github
 
 > ***https://github.com/SomeSandwich/paint-intro-window.git***
 
 ### License
-
+MIT
