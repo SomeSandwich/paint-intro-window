@@ -41,7 +41,7 @@ public class Rectangle2D : IShape
         var width = right - left;
         var height = bottom - top;
 
-        var shape = new Ellipse()
+        var shape = new Rectangle()
         {
             Width = width,
             Height = height,

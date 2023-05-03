@@ -71,7 +71,7 @@ public partial class MainWindow : Fluent.RibbonWindow, INotifyPropertyChanged
             return;
         }
 
-        LvShape.SelectedIndex = 0;
+        LvShape.SelectedIndex = 2;
     }
 
     private void UpdateSelectedShape(int index)
